@@ -121,7 +121,7 @@ struct bbr {
 #define CYCLE_LEN	8	/* number of phases in a pacing gain cycle */
 
 /* SYSCTL PARAMS */
-unsigned int sysctl_tcp_bbr_targetdelay __read_mostly = 0;
+int sysctl_tcp_bbr_targetdelay __read_mostly = 0;
 EXPORT_SYMBOL(sysctl_tcp_bbr_targetdelay);
 
 /* Window length of bw filter (in rounds): */
