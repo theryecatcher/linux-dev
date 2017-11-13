@@ -120,6 +120,10 @@ struct bbr {
 
 #define CYCLE_LEN	8	/* number of phases in a pacing gain cycle */
 
+/* SYSCTL PARAMS */
+unsigned int sysctl_tcp_bbr_targetdelay __read_mostly = 0;
+EXPORT_SYMBOL(sysctl_tcp_bbr_targetdelay);
+
 /* Window length of bw filter (in rounds): */
 static const int bbr_bw_rtts = CYCLE_LEN + 2;
 /* Window length of min_rtt filter (in sec): */
@@ -341,7 +345,12 @@ static u32 bbr_target_cwnd(struct sock *sk, u32 bw, int gain)
 	if (unlikely(bbr->min_rtt_us == ~0U))	 /* no valid RTT samples yet? */
 		return TCP_INIT_CWND;  /* be safe: cap at default initial cwnd*/
 
-	w = (u64)bw * bbr->min_rtt_us;
+	/* Cap the delay at a minimum. if min RTT is below a threshold use the 
+	lower value of the two to calculate the congestion window*/
+	if (bbr->min_rtt_us > sysctl_tcp_bbr_targetdelay)
+		w = (u64)bw * bbr->min_rtt_us;
+	else
+		w = (u64)bw * sysctl_tcp_bbr_targetdelay;
 
 	/* Apply a gain to the given value, then remove the BW_SCALE shift. */
 	cwnd = (((w * gain) >> BBR_SCALE) + BW_UNIT - 1) / BW_UNIT;

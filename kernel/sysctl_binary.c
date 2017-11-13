@@ -391,6 +391,7 @@ static const struct bin_table bin_net_ipv4_table[] = {
 	{ CTL_STR,	NET_TCP_CONG_CONTROL,			"tcp_congestion_control" },
 	{ CTL_INT,	NET_TCP_MTU_PROBING,			"tcp_mtu_probing" },
 	{ CTL_INT,	NET_TCP_BASE_MSS,			"tcp_base_mss" },
+	{ CTL_INT,	NET_TCP_BBR_TARGETDELAY,			"tcp_bbr_targetdelay" },
 	{ CTL_INT,	NET_IPV4_TCP_WORKAROUND_SIGNED_WINDOWS,	"tcp_workaround_signed_windows" },
 	{ CTL_INT,	NET_TCP_SLOW_START_AFTER_IDLE,		"tcp_slow_start_after_idle" },
 	{ CTL_INT,	NET_CIPSOV4_CACHE_ENABLE,		"cipso_cache_enable" },
