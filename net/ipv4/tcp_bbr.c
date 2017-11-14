@@ -120,16 +120,25 @@ struct bbr {
 
 #define CYCLE_LEN	8	/* number of phases in a pacing gain cycle */
 
-/* SYSCTL PARAMS */
-int sysctl_tcp_bbr_targetdelay __read_mostly = 0;
+/*
+* SYSCTL BBR PARAMS
+*/
+/* Target Delay Capping the min RTT */
+unsigned int sysctl_tcp_bbr_targetdelay __read_mostly = 0;
 EXPORT_SYMBOL(sysctl_tcp_bbr_targetdelay);
+/* Window length of min_rtt filter (in sec): */
+unsigned int sysctl_bbr_min_rtt_win_sec __read_mostly = 10;
+EXPORT_SYMBOL(sysctl_bbr_min_rtt_win_sec);
+/* Minimum time (in ms) spent at bbr_cwnd_min_target in BBR_PROBE_RTT mode: */
+unsigned int sysctl_bbr_probe_rtt_mode_ms __read_mostly = 200;
+EXPORT_SYMBOL(sysctl_bbr_probe_rtt_mode_ms);
+/*
+* End of Custom and Modded Params
+*/
 
 /* Window length of bw filter (in rounds): */
 static const int bbr_bw_rtts = CYCLE_LEN + 2;
-/* Window length of min_rtt filter (in sec): */
-static const u32 bbr_min_rtt_win_sec = 10;
-/* Minimum time (in ms) spent at bbr_cwnd_min_target in BBR_PROBE_RTT mode: */
-static const u32 bbr_probe_rtt_mode_ms = 200;
+
 /* Skip TSO below the following bandwidth (bits/sec): */
 static const int bbr_min_tso_rate = 1200000;
 
@@ -752,7 +761,7 @@ static void bbr_check_drain(struct sock *sk, const struct rate_sample *rs)
  *
  * The min_rtt filter window is 10 seconds. When the min_rtt estimate expires,
  * we enter PROBE_RTT mode and cap the cwnd at bbr_cwnd_min_target=4 packets.
- * After at least bbr_probe_rtt_mode_ms=200ms and at least one packet-timed
+ * After at least sysctl_bbr_probe_rtt_mode_ms=200ms and at least one packet-timed
  * round trip elapsed with that flight size <= 4, we leave PROBE_RTT mode and
  * re-enter the previous mode. BBR uses 200ms to approximately bound the
  * performance penalty of PROBE_RTT's cwnd capping to roughly 2% (200ms/10s).
@@ -771,14 +780,14 @@ static void bbr_update_min_rtt(struct sock *sk, const struct rate_sample *rs)
 
 	/* Track min RTT seen in the min_rtt_win_sec filter window: */
 	filter_expired = after(tcp_jiffies32,
-			       bbr->min_rtt_stamp + bbr_min_rtt_win_sec * HZ);
+			       bbr->min_rtt_stamp + sysctl_bbr_min_rtt_win_sec * HZ);
 	if (rs->rtt_us >= 0 &&
 	    (rs->rtt_us <= bbr->min_rtt_us || filter_expired)) {
 		bbr->min_rtt_us = rs->rtt_us;
 		bbr->min_rtt_stamp = tcp_jiffies32;
 	}
 
-	if (bbr_probe_rtt_mode_ms > 0 && filter_expired &&
+	if (sysctl_bbr_probe_rtt_mode_ms > 0 && filter_expired &&
 	    !bbr->idle_restart && bbr->mode != BBR_PROBE_RTT) {
 		bbr->mode = BBR_PROBE_RTT;  /* dip, drain queue */
 		bbr->pacing_gain = BBR_UNIT;
@@ -795,7 +804,7 @@ static void bbr_update_min_rtt(struct sock *sk, const struct rate_sample *rs)
 		if (!bbr->probe_rtt_done_stamp &&
 		    tcp_packets_in_flight(tp) <= bbr_cwnd_min_target) {
 			bbr->probe_rtt_done_stamp = tcp_jiffies32 +
-				msecs_to_jiffies(bbr_probe_rtt_mode_ms);
+				msecs_to_jiffies(sysctl_bbr_probe_rtt_mode_ms);
 			bbr->probe_rtt_round_done = 0;
 			bbr->next_rtt_delivered = tp->delivered;
 		} else if (bbr->probe_rtt_done_stamp) {

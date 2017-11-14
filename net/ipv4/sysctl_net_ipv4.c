@@ -710,13 +710,33 @@ static struct ctl_table ipv4_table[] = {
 		.mode		= 0444,
 		.proc_handler   = proc_tcp_available_ulp,
 	},
+	/*
+	* Custom bindings for SYSCTL BBR Params
+	*/
 	{
 		.procname	= "tcp_bbr_targetdelay",
 		.data		= &sysctl_tcp_bbr_targetdelay,
-		.maxlen		= sizeof(int),
+		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec,
+		.proc_handler	= proc_douintvec,
 	},
+	{
+		.procname	= "tcp_bbr_minrttwinsec",
+		.data		= &sysctl_bbr_min_rtt_win_sec,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec,
+	},
+	{
+		.procname	= "tcp_bbr_proberttmodems",
+		.data		= &sysctl_bbr_probe_rtt_mode_ms,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec,
+	},
+	/*
+	* End of
+	*/
 	{
 		.procname	= "icmp_msgs_per_sec",
 		.data		= &sysctl_icmp_msgs_per_sec,
