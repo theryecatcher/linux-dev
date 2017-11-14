@@ -713,7 +713,7 @@ static struct ctl_table ipv4_table[] = {
 	{
 		.procname	= "tcp_bbr_targetdelay",
 		.data		= &sysctl_tcp_bbr_targetdelay,
-		.maxlen		= sizeof(sysctl_tcp_bbr_targetdelay),
+		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec,
 	},
