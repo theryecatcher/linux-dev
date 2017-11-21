@@ -280,6 +280,7 @@ extern int sysctl_tcp_pacing_ca_ratio;
 /*
 * Custom variables for sysctl Params
 */
+extern unsigned int sysctl_tcp_bbr_modbbr;
 extern unsigned int sysctl_tcp_bbr_targetdelay;
 extern unsigned int sysctl_bbr_min_rtt_win_sec;
 extern unsigned int sysctl_bbr_probe_rtt_mode_ms;

@@ -123,6 +123,9 @@ struct bbr {
 /*
 * SYSCTL BBR PARAMS
 */
+/* Target Delay Enable */
+unsigned int sysctl_tcp_bbr_modbbr __read_mostly = 0;
+EXPORT_SYMBOL(sysctl_tcp_bbr_modbbr);
 /* Target Delay Capping the min RTT */
 unsigned int sysctl_tcp_bbr_targetdelay __read_mostly = 0;
 EXPORT_SYMBOL(sysctl_tcp_bbr_targetdelay);
@@ -356,7 +359,7 @@ static u32 bbr_target_cwnd(struct sock *sk, u32 bw, int gain)
 
 	/* Cap the delay at a minimum. if min RTT is below a threshold use the 
 	lower value of the two to calculate the congestion window*/
-	if (bbr->min_rtt_us > sysctl_tcp_bbr_targetdelay)
+	if (sysctl_tcp_bbr_modbbr && (bbr->min_rtt_us > sysctl_tcp_bbr_targetdelay))
 		w = (u64)bw * bbr->min_rtt_us;
 	else
 		w = (u64)bw * sysctl_tcp_bbr_targetdelay;
