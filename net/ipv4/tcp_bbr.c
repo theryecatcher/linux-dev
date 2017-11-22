@@ -359,10 +359,10 @@ static u32 bbr_target_cwnd(struct sock *sk, u32 bw, int gain)
 
 	/* Cap the delay at a minimum. if min RTT is below a threshold use the 
 	lower value of the two to calculate the congestion window*/
-	if (sysctl_tcp_bbr_modbbr && (bbr->min_rtt_us > sysctl_tcp_bbr_targetdelay))
-		w = (u64)bw * bbr->min_rtt_us;
+	if (sysctl_tcp_bbr_modbbr)
+		w = (u64)bw * min(bbr->min_rtt_us,sysctl_tcp_bbr_targetdelay);
 	else
-		w = (u64)bw * sysctl_tcp_bbr_targetdelay;
+		w = (u64)bw * bbr->min_rtt_us;
 
 	/* Apply a gain to the given value, then remove the BW_SCALE shift. */
 	cwnd = (((w * gain) >> BBR_SCALE) + BW_UNIT - 1) / BW_UNIT;
