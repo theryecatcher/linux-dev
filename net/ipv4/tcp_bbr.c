@@ -357,12 +357,7 @@ static u32 bbr_target_cwnd(struct sock *sk, u32 bw, int gain)
 	if (unlikely(bbr->min_rtt_us == ~0U))	 /* no valid RTT samples yet? */
 		return TCP_INIT_CWND;  /* be safe: cap at default initial cwnd*/
 
-	/* Cap the delay at a minimum. if min RTT is below a threshold use the 
-	lower value of the two to calculate the congestion window*/
-	if (sysctl_tcp_bbr_modbbr)
-		w = (u64)bw * max(bbr->min_rtt_us,sysctl_tcp_bbr_targetdelay);
-	else
-		w = (u64)bw * bbr->min_rtt_us;
+	w = (u64)bw * bbr->min_rtt_us;
 
 	/* Apply a gain to the given value, then remove the BW_SCALE shift. */
 	cwnd = (((w * gain) >> BBR_SCALE) + BW_UNIT - 1) / BW_UNIT;
@@ -786,7 +781,13 @@ static void bbr_update_min_rtt(struct sock *sk, const struct rate_sample *rs)
 			       bbr->min_rtt_stamp + sysctl_bbr_min_rtt_win_sec * HZ);
 	if (rs->rtt_us >= 0 &&
 	    (rs->rtt_us <= bbr->min_rtt_us || filter_expired)) {
-		bbr->min_rtt_us = rs->rtt_us;
+		/* Cap the delay at a minimum. if min RTT is below a threshold use the 
+		lower value of the two to calculate the congestion window*/
+		if (sysctl_tcp_bbr_modbbr)
+			bbr->min_rtt_us = max(rs->rtt_us,sysctl_tcp_bbr_targetdelay);
+		else
+			bbr->min_rtt_us = rs->rtt_us;
+		
 		bbr->min_rtt_stamp = tcp_jiffies32;
 	}
 
