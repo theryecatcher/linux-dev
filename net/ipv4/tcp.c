@@ -300,6 +300,25 @@ atomic_long_t tcp_memory_allocated;	/* Current allocated memory. */
 EXPORT_SYMBOL(tcp_memory_allocated);
 
 /*
+* SYSCTL BBR PARAMS
+*/
+/* Target Delay Enable */
+unsigned int sysctl_tcp_bbr_modbbr __read_mostly = 0;
+EXPORT_SYMBOL(sysctl_tcp_bbr_modbbr);
+/* Target Delay Capping the min RTT */
+unsigned int sysctl_tcp_bbr_targetdelay __read_mostly = 0;
+EXPORT_SYMBOL(sysctl_tcp_bbr_targetdelay);
+/* Window length of min_rtt filter (in sec): */
+unsigned int sysctl_bbr_min_rtt_win_sec __read_mostly = 10;
+EXPORT_SYMBOL(sysctl_bbr_min_rtt_win_sec);
+/* Minimum time (in ms) spent at bbr_cwnd_min_target in BBR_PROBE_RTT mode: */
+unsigned int sysctl_bbr_probe_rtt_mode_ms __read_mostly = 200;
+EXPORT_SYMBOL(sysctl_bbr_probe_rtt_mode_ms);
+/*
+* End of Custom and Modded Params
+*/
+
+/*
  * Current number of TCP sockets.
  */
 struct percpu_counter tcp_sockets_allocated;
