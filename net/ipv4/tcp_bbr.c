@@ -785,7 +785,7 @@ static void bbr_update_min_rtt(struct sock *sk, const struct rate_sample *rs)
 		/* Cap the delay at a minimum. if min RTT is below a threshold use the 
 		 * max value of the two to calculate the congestion window */
 		if (sysctl_tcp_bbr_modbbr)
-			bbr->min_rtt_us = max(rs->rtt_us,sysctl_tcp_bbr_targetdelay);
+			bbr->min_rtt_us = min(rs->rtt_us,sysctl_tcp_bbr_targetdelay);
 		else
 			bbr->min_rtt_us = rs->rtt_us;
 		
