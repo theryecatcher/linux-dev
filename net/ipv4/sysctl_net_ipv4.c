@@ -714,8 +714,15 @@ static struct ctl_table ipv4_table[] = {
 	* Custom bindings for SYSCTL BBR Params
 	*/
 	{
-		.procname	= "tcp_bbr_modbbr",
-		.data		= &sysctl_tcp_bbr_modbbr,
+		.procname	= "tcp_bbr_enable_maxdelay",
+		.data		= &sysctl_tcp_bbr_enable_maxdelay,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec,
+	},
+	{
+		.procname	= "tcp_bbr_enable_probertt",
+		.data		= &sysctl_tcp_bbr_enable_probertt,
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
 		.proc_handler	= proc_douintvec,

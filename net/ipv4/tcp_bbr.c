@@ -120,25 +120,6 @@ struct bbr {
 
 #define CYCLE_LEN	8	/* number of phases in a pacing gain cycle */
 
-/*
-* SYSCTL BBR PARAMS
-*/
-/* Target Delay Enable */
-//unsigned int sysctl_tcp_bbr_modbbr __read_mostly = 0;
-//EXPORT_SYMBOL(sysctl_tcp_bbr_modbbr);
-/* Target Delay Capping the min RTT */
-//unsigned int sysctl_tcp_bbr_targetdelay __read_mostly = 0;
-//EXPORT_SYMBOL(sysctl_tcp_bbr_targetdelay);
-/* Window length of min_rtt filter (in sec): */
-//unsigned int sysctl_bbr_min_rtt_win_sec __read_mostly = 10;
-//EXPORT_SYMBOL(sysctl_bbr_min_rtt_win_sec);
-/* Minimum time (in ms) spent at bbr_cwnd_min_target in BBR_PROBE_RTT mode: */
-//unsigned int sysctl_bbr_probe_rtt_mode_ms __read_mostly = 200;
-//EXPORT_SYMBOL(sysctl_bbr_probe_rtt_mode_ms);
-/*
-* End of Custom and Modded Params
-*/
-
 /* Window length of bw filter (in rounds): */
 static const int bbr_bw_rtts = CYCLE_LEN + 2;
 
@@ -782,9 +763,9 @@ static void bbr_update_min_rtt(struct sock *sk, const struct rate_sample *rs)
 	if (rs->rtt_us >= 0 &&
 	    (rs->rtt_us <= bbr->min_rtt_us || filter_expired)) {
 
-		/* Cap the delay at a minimum. if min RTT is below a threshold use the 
-		 * max value of the two to calculate the congestion window */
-		if (sysctl_tcp_bbr_modbbr)
+		/* Cap the delay at a maximum. if min RTT is above a threshold use the 
+		 * min value of the two to calculate the congestion window */
+		if (sysctl_tcp_bbr_enable_maxdelay)
 			bbr->min_rtt_us = min(rs->rtt_us,sysctl_tcp_bbr_targetdelay);
 		else
 			bbr->min_rtt_us = rs->rtt_us;
