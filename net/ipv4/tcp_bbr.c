@@ -786,22 +786,36 @@ static void bbr_update_min_rtt(struct sock *sk, const struct rate_sample *rs)
 		/* Ignore low rate samples during this mode. */
 		tp->app_limited =
 			(tp->delivered + tcp_packets_in_flight(tp)) ? : 1;
-		/* Maintain min packets in flight for max(200 ms, 1 round). */
-		if (!bbr->probe_rtt_done_stamp &&
-		    tcp_packets_in_flight(tp) <= bbr_cwnd_min_target) {
-			bbr->probe_rtt_done_stamp = tcp_jiffies32 +
-				msecs_to_jiffies(sysctl_bbr_probe_rtt_mode_ms);
-			bbr->probe_rtt_round_done = 0;
-			bbr->next_rtt_delivered = tp->delivered;
-		} else if (bbr->probe_rtt_done_stamp) {
-			if (bbr->round_start)
-				bbr->probe_rtt_round_done = 1;
-			if (bbr->probe_rtt_round_done &&
-			    after(tcp_jiffies32, bbr->probe_rtt_done_stamp)) {
-				bbr->min_rtt_stamp = tcp_jiffies32;
-				bbr->restore_cwnd = 1;  /* snap to prior_cwnd */
-				bbr_reset_mode(sk);
+
+		/* Enable/Disable POBE RTT On Demand by the user just by overriding 
+		 * the state and enforcing the PROBE RTT phase to be completed. */
+		if (sysctl_tcp_bbr_enable_probertt){
+
+			/* Maintain min packets in flight for max(200 ms, 1 round). */
+			if (!bbr->probe_rtt_done_stamp &&
+			    tcp_packets_in_flight(tp) <= bbr_cwnd_min_target) {
+				bbr->probe_rtt_done_stamp = tcp_jiffies32 +
+					msecs_to_jiffies(sysctl_bbr_probe_rtt_mode_ms);
+				bbr->probe_rtt_round_done = 0;
+				bbr->next_rtt_delivered = tp->delivered;
+			} else if (bbr->probe_rtt_done_stamp) {
+				if (bbr->round_start)
+					bbr->probe_rtt_round_done = 1;
+				if (bbr->probe_rtt_round_done &&
+				    after(tcp_jiffies32, bbr->probe_rtt_done_stamp)) {
+					bbr->min_rtt_stamp = tcp_jiffies32;
+					bbr->restore_cwnd = 1;  /* snap to prior_cwnd */
+					bbr_reset_mode(sk);
+				}
 			}
+		} else {
+			/* Set values as if the phase was executed. */
+			bbr->next_rtt_delivered = tp->delivered;
+			bbr->min_rtt_stamp = tcp_jiffies32;
+
+			/* Snap to prior_cwnd and reset the mode. */
+			bbr->restore_cwnd = 1;
+			bbr_reset_mode(sk);
 		}
 	}
 	bbr->idle_restart = 0;

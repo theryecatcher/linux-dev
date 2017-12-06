@@ -306,7 +306,7 @@ EXPORT_SYMBOL(tcp_memory_allocated);
 unsigned int sysctl_tcp_bbr_enable_maxdelay __read_mostly = 0;
 EXPORT_SYMBOL(sysctl_tcp_bbr_enable_maxdelay);
 /* Enable/Disable Probe RTT */
-unsigned int sysctl_tcp_bbr_enable_probertt __read_mostly = 0;
+unsigned int sysctl_tcp_bbr_enable_probertt __read_mostly = 1;
 EXPORT_SYMBOL(sysctl_tcp_bbr_enable_probertt);
 /* Target Delay Capping the min RTT */
 unsigned int sysctl_tcp_bbr_targetdelay __read_mostly = 0;
