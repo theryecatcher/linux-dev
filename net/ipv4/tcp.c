@@ -2788,6 +2788,29 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
 		tp->notsent_lowat = val;
 		sk->sk_write_space(sk);
 		break;
+	/*
+	 * Raw implementation of sockets.
+	 * Basically hacked the current code to set variables.
+	 * Complete rewrite and seperate socket implementation should be done.
+	*/	
+	case TCP_BBR_EN_MAXDEL:
+		sysctl_tcp_bbr_enable_maxdelay = val;
+		break;
+	case TCP_BBR_EN_PRBRTT:
+		sysctl_tcp_bbr_enable_probertt = val;
+		break;
+	case TCP_BBR_TRGTDEL_MS:
+		sysctl_tcp_bbr_targetdelay = val;
+		break;
+	case TCP_BBR_MINRTTWIN_SEC:
+		sysctl_bbr_min_rtt_win_sec = val;
+		break;
+	case TCP_BBR_PRBERTTMDE_MS:
+		sysctl_bbr_probe_rtt_mode_ms = val;
+		break;
+	/*
+	 * End of custom implementation.
+	*/
 	default:
 		err = -ENOPROTOOPT;
 		break;

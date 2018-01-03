@@ -119,6 +119,17 @@ enum {
 #define TCP_FASTOPEN_CONNECT	30	/* Attempt FastOpen with connect */
 #define TCP_ULP			31	/* Attach a ULP to a TCP connection */
 #define TCP_MD5SIG_EXT		32	/* TCP MD5 Signature with extensions */
+/*
+ * Defining custom Socket TCP Options
+*/
+#define TCP_BBR_EN_MAXDEL 33;
+#define TCP_BBR_EN_PRBRTT 34;
+#define TCP_BBR_TRGTDEL_MS 35;
+#define TCP_BBR_MINRTTWIN_SEC 36;
+#define TCP_BBR_PRBERTTMDE_MS 37;
+/*
+ * End of Custom Socket Defines
+*/
 
 struct tcp_repair_opt {
 	__u32	opt_code;
