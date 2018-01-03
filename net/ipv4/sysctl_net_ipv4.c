@@ -735,8 +735,8 @@ static struct ctl_table ipv4_table[] = {
 		.proc_handler	= proc_douintvec,
 	},
 	{
-		.procname	= "tcp_bbr_bw_prob_auto",
-		.data		= &sysctl_tcp_bbr_bw_prob_auto,
+		.procname	= "tcp_bbr_bw_auto",
+		.data		= &sysctl_tcp_bbr_bw_auto,
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
 		.proc_handler	= proc_douintvec,
