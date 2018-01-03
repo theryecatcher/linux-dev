@@ -735,6 +735,20 @@ static struct ctl_table ipv4_table[] = {
 		.proc_handler	= proc_douintvec,
 	},
 	{
+		.procname	= "tcp_bbr_bw_prob_auto",
+		.data		= &sysctl_tcp_bbr_bw_prob_auto,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec,
+	},
+	{
+		.procname	= "tcp_bbr_bw",
+		.data		= &sysctl_tcp_bbr_bw,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec,
+	},
+	{
 		.procname	= "tcp_bbr_minrttwinsec",
 		.data		= &sysctl_bbr_min_rtt_win_sec,
 		.maxlen		= sizeof(unsigned int),

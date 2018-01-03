@@ -257,6 +257,18 @@ static void bbr_set_pacing_rate(struct sock *sk, u32 bw, int gain)
 		sk->sk_pacing_rate = rate;
 }
 
+static void bbr_set_pacing_rate_manual(struct sock *sk, u32 bw, int gain)
+{
+	struct tcp_sock *tp = tcp_sk(sk);
+	struct bbr *bbr = inet_csk_ca(sk);
+	u32 rate = bbr_bw_to_pacing_rate(sk, bw, gain);
+
+	if (unlikely(!bbr->has_seen_rtt && tp->srtt_us))
+		bbr_init_pacing_rate_from_rtt(sk);
+	if (bbr_full_bw_reached(sk) || rate > sk->sk_pacing_rate)
+		sk->sk_pacing_rate = rate;
+}
+
 /* Return count of segments we want in the skbs we send, or 0 for default. */
 static u32 bbr_tso_segs_goal(struct sock *sk)
 {
@@ -424,6 +436,30 @@ static void bbr_set_cwnd(struct sock *sk, const struct rate_sample *rs,
 		cwnd = min(cwnd + acked, target_cwnd);
 	else if (cwnd < target_cwnd || tp->delivered < TCP_INIT_CWND)
 		cwnd = cwnd + acked;
+	cwnd = max(cwnd, bbr_cwnd_min_target);
+
+done:
+	tp->snd_cwnd = min(cwnd, tp->snd_cwnd_clamp);	/* apply global cap */
+	if (bbr->mode == BBR_PROBE_RTT)  /* drain queue, refresh min_rtt */
+		tp->snd_cwnd = min(tp->snd_cwnd, bbr_cwnd_min_target);
+}
+
+static void bbr_set_cwnd_manual(struct sock *sk, const struct rate_sample *rs,
+			 u32 acked, u32 bw, int gain)
+{
+	struct tcp_sock *tp = tcp_sk(sk);
+	struct bbr *bbr = inet_csk_ca(sk);
+	u32 cwnd = 0, target_cwnd = 0;
+
+	if (!acked)
+		return;
+
+	if (bbr_set_cwnd_to_recover_or_restore(sk, rs, acked, &cwnd))
+		goto done;
+
+	/* If we're below target cwnd, slow start cwnd toward target cwnd. */
+	target_cwnd = bbr_target_cwnd(sk, bw, gain);
+	cwnd = target_cwnd;
 	cwnd = max(cwnd, bbr_cwnd_min_target);
 
 done:
@@ -787,7 +823,7 @@ static void bbr_update_min_rtt(struct sock *sk, const struct rate_sample *rs)
 		tp->app_limited =
 			(tp->delivered + tcp_packets_in_flight(tp)) ? : 1;
 
-		/* Enable/Disable POBE RTT On Demand by the user just by overriding 
+		/* Enable/Disable PROBE RTT On Demand by the user just by overriding 
 		 * the state and enforcing the PROBE RTT phase to be completed. */
 		if (sysctl_tcp_bbr_enable_probertt){
 
@@ -835,12 +871,31 @@ static void bbr_main(struct sock *sk, const struct rate_sample *rs)
 	struct bbr *bbr = inet_csk_ca(sk);
 	u32 bw;
 
-	bbr_update_model(sk, rs);
+	if(sysctl_tcp_bbr_bw_auto)
+	{
+		bbr_update_model(sk, rs);
+		bw = bbr_bw(sk);
+		bbr_set_pacing_rate(sk, bw, bbr->pacing_gain);
+		bbr_set_tso_segs_goal(sk);
+		bbr_set_cwnd(sk, rs, rs->acked_sacked, bw, bbr->cwnd_gain);
+	}
+	else
+	{
+//		bbr_update_bw(sk, rs);
+//		bbr_update_cycle_phase(sk, rs);
+//		bbr_check_full_bw_reached(sk, rs);
+//		bbr_check_drain(sk, rs);
+		bbr_update_min_rtt(sk, rs);
+		//bw = bbr_bw(sk);
+		u32 rate = sysctl_tcp_bbr_bw*USEC_PER_MSEC; //sysctl_tcp_bbr_bw in kbps ==> rate in bps.
 
-	bw = bbr_bw(sk);
-	bbr_set_pacing_rate(sk, bw, bbr->pacing_gain);
-	bbr_set_tso_segs_goal(sk);
-	bbr_set_cwnd(sk, rs, rs->acked_sacked, bw, bbr->cwnd_gain);
+		//bbr_set_pacing_rate(sk, bw, bbr->pacing_gain);
+		sk->sk_pacing_rate = min(rate, sk->sk_max_pacing_rate);
+
+		bbr_set_tso_segs_goal(sk);
+
+		bbr_set_cwnd_manual(sk, rs, rs->acked_sacked, bw, bbr_cwnd_gain>>1);
+	}
 }
 
 static void bbr_init(struct sock *sk)

@@ -127,6 +127,8 @@ enum {
 #define TCP_BBR_TRGTDEL_MS 35;
 #define TCP_BBR_MINRTTWIN_SEC 36;
 #define TCP_BBR_PRBERTTMDE_MS 37;
+#define TCP_BBR_BWAUTO 38;
+#define TCP_BBR_BWVAL 39;
 /*
  * End of Custom Socket Defines
 */

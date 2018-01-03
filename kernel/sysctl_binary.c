@@ -399,6 +399,8 @@ static const struct bin_table bin_net_ipv4_table[] = {
 	{ CTL_INT,	NET_TCP_BBR_TARGETDELAY,			"tcp_bbr_targetdelay" },
 	{ CTL_INT,	NET_TCP_BBR_MINRTTWINSEC,			"tcp_bbr_minrttwinsec" },
 	{ CTL_INT,	NET_TCP_BBR_PROBERTTMODEMS,			"tcp_bbr_proberttmodems" },
+	{ CTL_INT,	NET_TCP_BBR_BW,						"tcp_bbr_bw" },
+	{ CTL_INT,	NET_TCP_BBR_BW_AUTO,				"tcp_bbr_bw_auto" },
 	/*
 	* End of custom Params
 	*/

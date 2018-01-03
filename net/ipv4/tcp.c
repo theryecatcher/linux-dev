@@ -302,6 +302,12 @@ EXPORT_SYMBOL(tcp_memory_allocated);
 /*
 * SYSCTL BBR PARAMS
 */
+/* Enable Auto BW PROBING*/
+unsigned int sysctl_tcp_bbr_bw_auto __read_mostly = 1;
+EXPORT_SYMBOL(sysctl_tcp_bbr_bw_auto);
+/* SET BW MANUALLY (Kbps)*/
+unsigned int sysctl_tcp_bbr_bw __read_mostly = 2000; //2000kbps
+EXPORT_SYMBOL(sysctl_tcp_bbr_bw);
 /* Target Delay Enable */
 unsigned int sysctl_tcp_bbr_enable_maxdelay __read_mostly = 0;
 EXPORT_SYMBOL(sysctl_tcp_bbr_enable_maxdelay);
@@ -2807,6 +2813,12 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
 		break;
 	case TCP_BBR_PRBERTTMDE_MS:
 		sysctl_bbr_probe_rtt_mode_ms = val;
+		break;
+	case TCP_BBR_BWAUTO:
+		sysctl_tcp_bbr_bw_auto = val;
+		break;
+	case TCP_BBR_BWVAL:
+		sysctl_tcp_bbr_bw = val;
 		break;
 	/*
 	 * End of custom implementation.

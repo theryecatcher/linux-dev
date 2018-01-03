@@ -285,6 +285,8 @@ extern unsigned int sysctl_tcp_bbr_enable_probertt;
 extern unsigned int sysctl_tcp_bbr_targetdelay;
 extern unsigned int sysctl_bbr_min_rtt_win_sec;
 extern unsigned int sysctl_bbr_probe_rtt_mode_ms;
+extern unsigned int sysctl_tcp_bbr_bw_auto;
+extern unsigned int sysctl_tcp_bbr_bw;
 /*
 * End of custom variables
 */
