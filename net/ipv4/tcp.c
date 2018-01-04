@@ -308,6 +308,12 @@ EXPORT_SYMBOL(sysctl_tcp_bbr_bw_auto);
 /* SET BW MANUALLY (Kbps)*/
 unsigned int sysctl_tcp_bbr_bw __read_mostly = 2000; //2000kbps
 EXPORT_SYMBOL(sysctl_tcp_bbr_bw);
+/* CWND GAIN*/
+unsigned int sysctl_tcp_bbr_cwnd_rv_gain __read_mostly = 1;
+EXPORT_SYMBOL(sysctl_tcp_bbr_cwnd_rv_gain);
+/* TCP BBR Debug */
+unsigned int sysctl_tcp_bbr_debug __read_mostly = 0;
+EXPORT_SYMBOL(sysctl_tcp_bbr_debug);
 /* Target Delay Enable */
 unsigned int sysctl_tcp_bbr_enable_maxdelay __read_mostly = 0;
 EXPORT_SYMBOL(sysctl_tcp_bbr_enable_maxdelay);
@@ -2798,7 +2804,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
 	 * Raw implementation of sockets.
 	 * Basically hacked the current code to set variables.
 	 * Complete rewrite and seperate socket implementation should be done.
-	*/	
+	*/
 	case TCP_BBR_EN_MAXDEL:
 		sysctl_tcp_bbr_enable_maxdelay = val;
 		break;
@@ -2820,6 +2826,12 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
 	case TCP_BBR_BWVAL:
 		sysctl_tcp_bbr_bw = val;
 		break;
+	case TCP_BBR_CWNDRVGAIN:
+                sysctl_tcp_bbr_cwnd_rv_gain = val;
+                break;
+	case TCP_BBR_DEBUG:
+                sysctl_tcp_bbr_debug = val;
+                break;
 	/*
 	 * End of custom implementation.
 	*/
@@ -3236,6 +3248,41 @@ static int do_tcp_getsockopt(struct sock *sk, int level,
 		}
 		return 0;
 	}
+	/*
+         * Raw implementation of sockets.
+         * Basically hacked the current code to set variables.
+         * Complete rewrite and seperate socket implementation should be done.
+        */
+        case TCP_BBR_EN_MAXDEL:
+                val = sysctl_tcp_bbr_enable_maxdelay;
+                break;
+        case TCP_BBR_EN_PRBRTT:
+                val = sysctl_tcp_bbr_enable_probertt;
+                break;
+        case TCP_BBR_TRGTDEL_MS:
+                val = sysctl_tcp_bbr_targetdelay;
+                break;
+        case TCP_BBR_MINRTTWIN_SEC:
+                val = sysctl_bbr_min_rtt_win_sec;
+                break;
+        case TCP_BBR_PRBERTTMDE_MS:
+                val = sysctl_bbr_probe_rtt_mode_ms;
+                break;
+        case TCP_BBR_BWAUTO:
+                val = sysctl_tcp_bbr_bw_auto;
+                break;
+        case TCP_BBR_BWVAL:
+                val = sysctl_tcp_bbr_bw;
+                break;
+        case TCP_BBR_CWNDRVGAIN:
+                val = sysctl_tcp_bbr_cwnd_rv_gain;
+                break;
+        case TCP_BBR_DEBUG:
+                val = sysctl_tcp_bbr_debug;
+                break;
+        /*
+         * End of custom implementation.
+	*/
 	default:
 		return -ENOPROTOOPT;
 	}

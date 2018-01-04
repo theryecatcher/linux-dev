@@ -119,6 +119,7 @@ enum {
 #define TCP_FASTOPEN_CONNECT	30	/* Attempt FastOpen with connect */
 #define TCP_ULP			31	/* Attach a ULP to a TCP connection */
 #define TCP_MD5SIG_EXT		32	/* TCP MD5 Signature with extensions */
+
 /*
  * Defining custom Socket TCP Options
 */
@@ -129,6 +130,8 @@ enum {
 #define TCP_BBR_PRBERTTMDE_MS 37
 #define TCP_BBR_BWAUTO 38
 #define TCP_BBR_BWVAL 39
+#define TCP_BBR_CWNDRVGAIN 40
+#define TCP_BBR_DEBUG 41
 /*
  * End of Custom Socket Defines
 */

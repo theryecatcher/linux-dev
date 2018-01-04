@@ -714,12 +714,20 @@ static struct ctl_table ipv4_table[] = {
 	* Custom bindings for SYSCTL BBR Params
 	*/
 	{
+		.procname	= "tcp_bbr_cwnd_rv_gain",
+		.data		= &sysctl_tcp_bbr_cwnd_rv_gain,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec,
+	},
+	{
 		.procname	= "tcp_bbr_enable_maxdelay",
 		.data		= &sysctl_tcp_bbr_enable_maxdelay,
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
 		.proc_handler	= proc_douintvec,
 	},
+
 	{
 		.procname	= "tcp_bbr_enable_probertt",
 		.data		= &sysctl_tcp_bbr_enable_probertt,
@@ -735,13 +743,20 @@ static struct ctl_table ipv4_table[] = {
 		.proc_handler	= proc_douintvec,
 	},
 	{
-		.procname	= "tcp_bbr_bw_auto",
-		.data		= &sysctl_tcp_bbr_bw_auto,
+		.procname	= "tcp_bbr_debug",
+		.data		= &sysctl_tcp_bbr_debug,
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
 		.proc_handler	= proc_douintvec,
 	},
 	{
+			.procname	= "tcp_bbr_bw_auto",
+			.data		= &sysctl_tcp_bbr_bw_auto,
+			.maxlen		= sizeof(unsigned int),
+			.mode		= 0644,
+			.proc_handler	= proc_douintvec,
+	}
+	,{
 		.procname	= "tcp_bbr_bw",
 		.data		= &sysctl_tcp_bbr_bw,
 		.maxlen		= sizeof(unsigned int),

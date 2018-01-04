@@ -394,6 +394,8 @@ static const struct bin_table bin_net_ipv4_table[] = {
 	/*
 	* Custom sysctl control params added for BBR
 	*/
+	{ CTL_INT,	NET_TCP_BBR_CWND_RV_GAIN,			"tcp_bbr_cwnd_rv_gain" },
+	{ CTL_INT,	NET_TCP_BBR_DEBUG,					"tcp_bbr_debug" },
 	{ CTL_INT,	NET_TCP_BBR_ENABLE_MAXDELAY,		"tcp_bbr_enable_maxdelay" },
 	{ CTL_INT,	NET_TCP_BBR_ENABLE_PROBERTT,		"tcp_bbr_enable_probertt" },
 	{ CTL_INT,	NET_TCP_BBR_TARGETDELAY,			"tcp_bbr_targetdelay" },
